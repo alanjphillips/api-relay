@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import apirelay.config.ApplicationConfig.InstagramConfig
+import apirelay.config.ApplicationConfig.{InstagramConfig, UberConfig}
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Future
@@ -24,6 +24,10 @@ object ApiRelayServer extends App {
   val config = ConfigFactory.load()
   val logger = Logging(system, getClass)
 
+  def toQueryString(queryMap: Map[String,String]) = "?"+queryMap.map{
+    case (key,value) => s"$key=$value" // What about uri encoding??
+  }.mkString("&")
+
   def createInstagramSubscriptionFormData : Map[String,String] = {
     Map(
       "client_id" -> InstagramConfig.clientId,
@@ -32,6 +36,14 @@ object ApiRelayServer extends App {
       "aspect" -> "media",
       "verify_token" -> "myVerifyToken",
       "callback_url" -> InstagramConfig.callbackUrl
+    )
+  }
+
+  def uberGetProductsRequestParams : Map[String,String] = {
+    Map(
+      "server_token" -> UberConfig.serverToken,
+      "latitude" -> "51.531679",
+      "longitude" -> "-0.124400"
     )
   }
 
@@ -54,6 +66,24 @@ object ApiRelayServer extends App {
     }
   }
 
+  def getProductsFromUber() = {
+    val connection = Http().outgoingConnectionTls(UberConfig.uberHost, UberConfig.uberPort)
+    val request:HttpRequest = RequestBuilding.Get(UberConfig.productsUrl + toQueryString(uberGetProductsRequestParams))
+    Source.single(request).via(connection).runWith(Sink.head).flatMap { response =>
+      response.status match {
+        case OK => Unmarshal(response.entity).to[String].flatMap { entity =>
+          println("Uber Responded:\n " + entity)
+          Future.successful(entity)
+        }
+        case _ => {
+          println("GET to Uber failed:\n " + response.toString)
+          Future.failed(new Exception("Uber call failed:\n " + response.toString))
+        }
+      }
+    }
+
+  }
+
   val routes = {
     pathPrefix("auth") {
       (get & path("instagram" / "callback")) { ctx =>
@@ -65,6 +95,13 @@ object ApiRelayServer extends App {
       post {
         complete {
           subscribeToInstagram()
+        }
+      }
+    } ~
+    path("uber" / "products") {
+      get {
+        complete {
+          getProductsFromUber()
         }
       }
     }
