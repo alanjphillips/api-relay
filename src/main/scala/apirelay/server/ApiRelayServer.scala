@@ -1,16 +1,20 @@
 package apirelay.server
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{FormData, HttpRequest}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import apirelay.config.ApplicationConfig.{InstagramConfig, UberConfig}
+import apirelay.config.ApplicationConfig.{InstagramConfig, TwitterConfig, UberConfig}
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Future
@@ -44,6 +48,12 @@ object ApiRelayServer extends App {
       "server_token" -> UberConfig.serverToken,
       "latitude" -> "51.531679",
       "longitude" -> "-0.124400"
+    )
+  }
+
+  def twitterGetOAuth2BearerTokenFormData : Map[String,String] = {
+    Map(
+      "grant_type" -> "client_credentials"
     )
   }
 
@@ -81,7 +91,36 @@ object ApiRelayServer extends App {
         }
       }
     }
+  }
 
+  def generateEncodedAuthValue() = {
+    val encoder:Base64.Encoder = Base64.getEncoder();
+    val toEncode = "username:password";
+    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8) );
+  }
+
+  def getTwitterApplicationBearerToken() = {
+    val formFieldsAndValues = twitterGetOAuth2BearerTokenFormData
+    val connection = Http().outgoingConnectionTls(TwitterConfig.twitterHost, TwitterConfig.twitterPort)
+    val request:HttpRequest = RequestBuilding.Post(InstagramConfig.subscriptionsUrl, FormData(formFieldsAndValues));
+
+    request.withHeaders(
+      RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
+      RawHeader("Authorization", "Basic " + generateEncodedAuthValue())
+    )
+
+    Source.single(request).via(connection).runWith(Sink.head).flatMap { response =>
+      response.status match {
+        case OK => Unmarshal(response.entity).to[String].flatMap { entity =>
+          println("Twitter OAuth2 Bearer Token Responded:\n " + entity)
+          Future.successful(entity)
+        }
+        case _ => {
+          println("POST to Twitter OAuth2 Bearer Token failed:\n " + response.toString)
+          Future.failed(new Exception("Twitter OAuth2 Bearer Token call failed:\n " + response.toString))
+        }
+      }
+    }
   }
 
   val routes = {
@@ -102,6 +141,13 @@ object ApiRelayServer extends App {
       get {
         complete {
           getProductsFromUber()
+        }
+      }
+    } ~
+    path("twitter" / "apponlytoken") {
+      get {
+        complete {
+          getTwitterApplicationBearerToken()
         }
       }
     }

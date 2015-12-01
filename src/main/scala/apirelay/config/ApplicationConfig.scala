@@ -15,12 +15,13 @@ object ApplicationConfig {
 
   object TwitterConfig {
     private val twitterConfig = config.getConfig("twitter")
-    lazy val url = twitterConfig.getString("url")
+    lazy val twitterHost = twitterConfig.getString("host")
+    lazy val twitterPort = twitterConfig.getInt("port")
     lazy val enabled = twitterConfig.getBoolean("enabled")
     lazy val consumerKey = twitterConfig.getString("consumer-key")
     lazy val consumerSecret = twitterConfig.getString("consumer-secret")
-    lazy val userKey = twitterConfig.getString("user-key")
-    lazy val userSecret = twitterConfig.getString("user-secret")
+    lazy val accessToken = twitterConfig.getString("access-token")
+    lazy val accessTokenSecret = twitterConfig.getString("access-token-secret")
     lazy val userName = twitterConfig.getString("user-name")
   }
 
