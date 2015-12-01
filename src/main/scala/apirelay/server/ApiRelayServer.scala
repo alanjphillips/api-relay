@@ -96,13 +96,13 @@ object ApiRelayServer extends App {
   def generateEncodedAuthValue() = {
     val encoder:Base64.Encoder = Base64.getEncoder();
     val toEncode = "username:password";
-    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8) );
+    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8));
   }
 
   def getTwitterApplicationBearerToken() = {
     val formFieldsAndValues = twitterGetOAuth2BearerTokenFormData
     val connection = Http().outgoingConnectionTls(TwitterConfig.twitterHost, TwitterConfig.twitterPort)
-    val request:HttpRequest = RequestBuilding.Post(InstagramConfig.subscriptionsUrl, FormData(formFieldsAndValues));
+    val request:HttpRequest = RequestBuilding.Post(TwitterConfig.oauthTokenUrl, FormData(formFieldsAndValues));
 
     request.withHeaders(
       RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
