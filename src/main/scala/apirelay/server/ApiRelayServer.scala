@@ -68,9 +68,9 @@ object ApiRelayServer extends App {
           println("Instagram Responded:\n " + entity)
           Future.successful(entity)
         }
-        case _ => {
-          println("POST to Instagram failed:\n " + response.toString)
-          Future.failed(new Exception("Instagram call failed:\n " + response.toString))
+        case  _ => Unmarshal(response.entity).to[String].flatMap { entity =>
+          println("POST to Instagram failed:\n " + entity)
+          Future.failed(new Exception("Instagram call failed:\n " + entity))
         }
       }
     }
@@ -85,28 +85,28 @@ object ApiRelayServer extends App {
           println("Uber Responded:\n " + entity)
           Future.successful(entity)
         }
-        case _ => {
-          println("GET to Uber failed:\n " + response.toString)
-          Future.failed(new Exception("Uber call failed:\n " + response.toString))
+        case _ => Unmarshal(response.entity).to[String].flatMap { entity =>
+          println("GET to Uber failed:\n " + entity)
+          Future.failed(new Exception("Uber call failed:\n " + entity))
         }
       }
     }
   }
 
-  def generateEncodedAuthValue() = {
-    val encoder:Base64.Encoder = Base64.getEncoder();
-    val toEncode = "username:password";
-    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8));
+  def base64Encode(toEncode: String) = {
+    val encoder:Base64.Encoder = Base64.getEncoder()
+    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8))
   }
+
 
   def getTwitterApplicationBearerToken() = {
     val formFieldsAndValues = twitterGetOAuth2BearerTokenFormData
     val connection = Http().outgoingConnectionTls(TwitterConfig.twitterHost, TwitterConfig.twitterPort)
-    val request:HttpRequest = RequestBuilding.Post(TwitterConfig.oauthTokenUrl, FormData(formFieldsAndValues));
+    val request:HttpRequest = RequestBuilding.Post(TwitterConfig.oauthTokenUrl, FormData(formFieldsAndValues))
 
     request.withHeaders(
       RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
-      RawHeader("Authorization", "Basic " + generateEncodedAuthValue())
+      RawHeader("Authorization", "Basic " + base64Encode(TwitterConfig.consumerKey + ":" + TwitterConfig.consumerSecret))
     )
 
     Source.single(request).via(connection).runWith(Sink.head).flatMap { response =>
@@ -115,9 +115,9 @@ object ApiRelayServer extends App {
           println("Twitter OAuth2 Bearer Token Responded:\n " + entity)
           Future.successful(entity)
         }
-        case _ => {
-          println("POST to Twitter OAuth2 Bearer Token failed:\n " + response.toString)
-          Future.failed(new Exception("Twitter OAuth2 Bearer Token call failed:\n " + response.toString))
+        case _ => Unmarshal(response.entity).to[String].flatMap { entity =>
+          println("POST to Twitter OAuth2 Bearer Token failed:\n " + entity)
+          Future.failed(new Exception("Twitter OAuth2 Bearer Token call failed:\n " + entity))
         }
       }
     }
