@@ -1,5 +1,6 @@
 package apirelay.server
 
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
@@ -57,6 +58,20 @@ object ApiRelayServer extends App {
     )
   }
 
+  def twitterGetOAuth2BearerTokenHeaders = {
+    List (
+      RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
+      RawHeader("Authorization", "Basic " + base64Encode(utf8Encode(TwitterConfig.consumerKey) + ":" + utf8Encode(TwitterConfig.consumerSecret)))
+    )
+  }
+
+  def base64Encode(toEncode: String) = {
+    val encoder:Base64.Encoder = Base64.getEncoder()
+    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8))
+  }
+
+  def utf8Encode(value: String): String = URLEncoder.encode(value, "UTF-8")
+
   def subscribeToInstagram() = {
     val formFieldsAndValues = createInstagramSubscriptionFormData
     val connection = Http().outgoingConnectionTls(InstagramConfig.instagramHost, InstagramConfig.instagramPort)
@@ -93,21 +108,10 @@ object ApiRelayServer extends App {
     }
   }
 
-  def base64Encode(toEncode: String) = {
-    val encoder:Base64.Encoder = Base64.getEncoder()
-    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8))
-  }
-
-
   def getTwitterApplicationBearerToken() = {
     val formFieldsAndValues = twitterGetOAuth2BearerTokenFormData
     val connection = Http().outgoingConnectionTls(TwitterConfig.twitterHost, TwitterConfig.twitterPort)
-    val request:HttpRequest = RequestBuilding.Post(TwitterConfig.oauthTokenUrl, FormData(formFieldsAndValues))
-
-    request.withHeaders(
-      RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
-      RawHeader("Authorization", "Basic " + base64Encode(TwitterConfig.consumerKey + ":" + TwitterConfig.consumerSecret))
-    )
+    val request:HttpRequest = RequestBuilding.Post(TwitterConfig.oauthTokenUrl, FormData(formFieldsAndValues)).withHeaders(twitterGetOAuth2BearerTokenHeaders)
 
     Source.single(request).via(connection).runWith(Sink.head).flatMap { response =>
       response.status match {
