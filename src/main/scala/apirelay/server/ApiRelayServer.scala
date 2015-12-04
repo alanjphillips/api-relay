@@ -30,7 +30,7 @@ object ApiRelayServer extends App {
   val logger = Logging(system, getClass)
 
   def toQueryString(queryMap: Map[String,String]) = "?"+queryMap.map{
-    case (key,value) => s"$key=$value" // What about uri encoding??
+    case (key,value) => s"$key=" + URLEncoder.encode(s"$value", "UTF-8")
   }.mkString("&")
 
   def createInstagramSubscriptionFormData : Map[String,String] = {
