@@ -85,11 +85,12 @@ object ApiRelayServer extends App with HttpUtils with ApiUtils {
   val routes = {
     pathPrefix("auth") {
       path("instagram" / "callback") {
-        (get & parameters("hub.challenge")) { (hubChallenge) => {
-          complete {
-            hubChallenge
+        (get & parameters("hub.challenge")) {
+          (hubChallenge) => {
+            complete {
+              hubChallenge
+            }
           }
-        }
         }
       }
     } ~
