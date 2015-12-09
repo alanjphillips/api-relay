@@ -84,32 +84,36 @@ object ApiRelayServer extends App with HttpUtils with ApiUtils {
 
   val routes = {
     pathPrefix("auth") {
-      (path("instagram" / "callback") & get) { ctx =>
-        println("Reached instagram callback: " + ctx.request.uri.query().get("hub.challenge") + "\n")
-        ctx.complete(ctx.request.uri.query().get("hub.challenge"))
-      }
-    } ~
-    path("instagram" / "subscription") {
-      post {
-        complete {
-          subscribeToInstagram()
+      path("instagram" / "callback") {
+        (get & parameters("hub.challenge")) { (hubChallenge) => {
+          complete {
+            hubChallenge
+          }
+        }
         }
       }
     } ~
-    path("uber" / "products") {
-      get {
-        complete {
-          getProductsFromUber()
+      path("instagram" / "subscription") {
+        post {
+          complete {
+            subscribeToInstagram()
+          }
+        }
+      } ~
+      path("uber" / "products") {
+        get {
+          complete {
+            getProductsFromUber()
+          }
+        }
+      } ~
+      path("twitter" / "apponlytoken") {
+        get {
+          complete {
+            getTwitterApplicationBearerToken()
+          }
         }
       }
-    } ~
-    path("twitter" / "apponlytoken") {
-      get {
-        complete {
-          getTwitterApplicationBearerToken()
-        }
-      }
-    }
   }
 
   def startServer() {
