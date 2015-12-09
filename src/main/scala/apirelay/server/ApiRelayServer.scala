@@ -1,27 +1,24 @@
 package apirelay.server
 
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{FormData, HttpRequest}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import apirelay.config.ApplicationConfig.{InstagramConfig, TwitterConfig, UberConfig}
+import apirelay.util.{ApiUtils, HttpUtils}
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Future
 
 
-object ApiRelayServer extends App {
+object ApiRelayServer extends App with HttpUtils with ApiUtils {
   implicit val system = ActorSystem()
   implicit val executor = system.dispatcher
   implicit val materializer = ActorMaterializer()
@@ -29,48 +26,6 @@ object ApiRelayServer extends App {
   val config = ConfigFactory.load()
   val logger = Logging(system, getClass)
 
-  def toQueryString(queryMap: Map[String,String]) = "?"+queryMap.map{
-    case (key,value) => s"$key=" + URLEncoder.encode(s"$value", "UTF-8")
-  }.mkString("&")
-
-  def createInstagramSubscriptionFormData : Map[String,String] = {
-    Map(
-      "client_id" -> InstagramConfig.clientId,
-      "client_secret" ->  InstagramConfig.clientSecret,
-      "object" -> "user",
-      "aspect" -> "media",
-      "verify_token" -> "myVerifyToken",
-      "callback_url" -> InstagramConfig.callbackUrl
-    )
-  }
-
-  def uberGetProductsRequestParams : Map[String,String] = {
-    Map(
-      "server_token" -> UberConfig.serverToken,
-      "latitude" -> "51.531679",
-      "longitude" -> "-0.124400"
-    )
-  }
-
-  def twitterGetOAuth2BearerTokenFormData : Map[String,String] = {
-    Map(
-      "grant_type" -> "client_credentials"
-    )
-  }
-
-  def twitterGetOAuth2BearerTokenHeaders = {
-    List (
-      RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
-      RawHeader("Authorization", "Basic " + base64Encode(utf8Encode(TwitterConfig.consumerKey) + ":" + utf8Encode(TwitterConfig.consumerSecret)))
-    )
-  }
-
-  def base64Encode(toEncode: String) = {
-    val encoder:Base64.Encoder = Base64.getEncoder()
-    encoder.encodeToString(toEncode.getBytes(StandardCharsets.UTF_8))
-  }
-
-  def utf8Encode(value: String): String = URLEncoder.encode(value, "UTF-8")
 
   def subscribeToInstagram() = {
     val formFieldsAndValues = createInstagramSubscriptionFormData
@@ -129,7 +84,7 @@ object ApiRelayServer extends App {
 
   val routes = {
     pathPrefix("auth") {
-      (get & path("instagram" / "callback")) { ctx =>
+      (path("instagram" / "callback") & get) { ctx =>
         println("Reached instagram callback: " + ctx.request.uri.query().get("hub.challenge") + "\n")
         ctx.complete(ctx.request.uri.query().get("hub.challenge"))
       }
