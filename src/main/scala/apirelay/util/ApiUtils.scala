@@ -7,7 +7,7 @@ import apirelay.server.ApiRelayServer._
 
 trait ApiUtils {
 
-  def createInstagramSubscriptionFormData : Map[String,String] = {
+  def createInstagramSubscriptionFormData: Map[String,String] = {
     Map(
       "client_id" -> InstagramConfig.clientId,
       "client_secret" ->  InstagramConfig.clientSecret,
@@ -18,7 +18,7 @@ trait ApiUtils {
     )
   }
 
-  def uberGetProductsRequestParams : Map[String,String] = {
+  def uberGetProductsRequestParams: Map[String,String] = {
     Map(
       "server_token" -> UberConfig.serverToken,
       "latitude" -> "51.531679",
@@ -26,16 +26,30 @@ trait ApiUtils {
     )
   }
 
-  def twitterGetOAuth2BearerTokenFormData : Map[String,String] = {
+  def twitterGetOAuth2BearerTokenFormData: Map[String,String] = {
     Map(
       "grant_type" -> "client_credentials"
     )
   }
 
-  def twitterGetOAuth2BearerTokenHeaders = {
+  def twitterGetOAuth2BearerTokenHeaders: List[RawHeader] = {
     List (
       RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
       RawHeader("Authorization", "Basic " + base64Encode(utf8Encode(TwitterConfig.consumerKey) + ":" + utf8Encode(TwitterConfig.consumerSecret)))
+    )
+  }
+
+  def twitterGetUserTimelineHeaders(token: String): List[RawHeader] = {
+    List (
+      RawHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"),
+      RawHeader("Authorization", "Bearer " + token)
+    )
+  }
+
+  def twitterGetUserTimelineRequestParams(count: String, screenName: String): Map[String,String] = {
+    Map(
+      "count" -> count,
+      "screen_name" -> screenName
     )
   }
 

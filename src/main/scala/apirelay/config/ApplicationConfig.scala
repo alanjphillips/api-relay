@@ -18,6 +18,7 @@ object ApplicationConfig {
     lazy val twitterHost = twitterConfig.getString("host")
     lazy val twitterPort = twitterConfig.getInt("port")
     lazy val oauthTokenUrl = twitterConfig.getString("oauth2-token-url")
+    lazy val userTimelineUrl = twitterConfig.getString("user-timeline-url")
     lazy val enabled = twitterConfig.getBoolean("enabled")
     lazy val consumerKey = twitterConfig.getString("consumer-key")
     lazy val consumerSecret = twitterConfig.getString("consumer-secret")
