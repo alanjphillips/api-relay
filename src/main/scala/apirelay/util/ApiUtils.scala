@@ -2,10 +2,9 @@ package apirelay.util
 
 import akka.http.scaladsl.model.headers.RawHeader
 import apirelay.config.ApplicationConfig.{InstagramConfig, TwitterConfig, UberConfig}
-import apirelay.server.ApiRelayServer._
 
 
-trait ApiUtils {
+trait ApiUtils extends HttpUtils {
 
   def createInstagramSubscriptionFormData: Map[String,String] = {
     Map(
