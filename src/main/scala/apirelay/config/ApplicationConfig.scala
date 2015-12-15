@@ -13,6 +13,13 @@ object ApplicationConfig {
     lazy val port = httpConfig.getInt("port")
   }
 
+  object HttpsConfig {
+    private val httpsConfig = config.getConfig("https")
+
+    lazy val interface = httpsConfig.getString("interface")
+    lazy val port = httpsConfig.getInt("port")
+  }
+
   object TwitterConfig {
     private val twitterConfig = config.getConfig("twitter")
     lazy val twitterHost = twitterConfig.getString("host")

@@ -5,6 +5,7 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import apirelay.config.ApplicationConfig.HttpConfig
 import apirelay.service.{InstagramService, TwitterService, UberService}
 import com.typesafe.config.ConfigFactory
 
@@ -28,7 +29,7 @@ object ApiRelayServer extends App
   }
 
   def startServer() {
-    Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
+    Http().bindAndHandle(routes, HttpConfig.interface, HttpConfig.port)
   }
 
   startServer()
