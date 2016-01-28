@@ -26,3 +26,14 @@ libraryDependencies ++= {
 }
 
 Revolver.settings
+
+maintainer in Docker := "AlanP"
+packageSummary in Docker := "Api-Relay"
+packageDescription := "Docker Api-Relay Service"
+packageName in Docker := "api-relay"
+
+// sbt docker:publishLocal
+// docker images
+// docker run api-relay:1.0
+// TO GET CONTAINER IP ADDRESS
+// docker inspect <CONTAINER_ID>
