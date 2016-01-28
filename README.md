@@ -6,6 +6,7 @@ Trying out various public APIs using Akka Http Streams in Scala. Focusing on exp
 
 -- FIND LOCAL IMAGE AND RUN CONTAINER
 > docker images
+
 > docker run api-relay:1.0
 
 -- TO GET CONTAINER IP ADDRESS
