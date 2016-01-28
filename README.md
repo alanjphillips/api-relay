@@ -10,6 +10,6 @@ Trying out various public APIs using Akka Http Streams in Scala. Focusing on exp
 > docker run api-relay:1.0
 
 -- TO GET CONTAINER IP ADDRESS
-> docker inspect <CONTAINER_ID> 
+> docker inspect CONTAINER_ID 
 
-GET http://<CONTAINER_IP>:9000/uber/products
+GET http://CONTAINER_IP:9000/uber/products
