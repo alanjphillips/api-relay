@@ -32,8 +32,7 @@ packageSummary in Docker := "Api-Relay"
 packageDescription := "Docker Api-Relay Service"
 packageName in Docker := "api-relay"
 
-// sbt docker:publishLocal
-// docker images
-// docker run api-relay:1.0
-// TO GET CONTAINER IP ADDRESS
-// docker inspect <CONTAINER_ID>
+//dockerBaseImage := "dockerfile/java" // Docker image to use as a base for the application image
+//dockerExposedPorts in Docker := Seq(9000, 9443) // Ports to expose from container for Docker container linking
+//dockerExposedVolumes in Docker := Seq("/opt/docker/logs") // Data volumes to make available in image
+//dockerRepository := Some("dockerusername") // Repository used when publishing Docker image

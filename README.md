@@ -3,10 +3,10 @@ Trying out various public APIs using Akka Http Streams in Scala. Focusing on exp
 
 
 OPTION 1: TO BUILD A DOCKER IMAGE
-> sbt docker:publishLocal
+// optional step to create staging folder with contents for building the Docker image (Dockerfile and opt folder), located at target/docker/stage
+> sbt docker:stage 
 
--- FOR REFERENCE, THE DOCKER FILE AND OPT FOLDER CONTAINING APP CAN BE FOUND UNDER
-target/docker/stage
+> sbt docker:publishLocal
 
 -- FIND LOCAL IMAGE AND RUN CONTAINER LOCALLY
 > docker images
