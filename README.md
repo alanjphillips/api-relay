@@ -10,10 +10,12 @@ OPTION 1: TO BUILD A DOCKER IMAGE
 
 -- FIND LOCAL IMAGE AND RUN CONTAINER LOCALLY
 > docker images
+
 > docker run api-relay:1.0
 
 -- TO GET CONTAINER IP ADDRESS
 > docker inspect CONTAINER_ID 
+
 GET http://CONTAINER_IP:9000/uber/products
 
 
