@@ -1,0 +1,64 @@
+akka {
+  loglevel = DEBUG
+}
+
+http {
+  interface = "0.0.0.0"
+  port = 9000
+}
+
+https {
+  interface = "0.0.0.0"
+  port = 443
+}
+
+couchbase {
+  buckets = [{
+    host="0.0.0.0"
+    port="8091"
+    base="pools"
+    bucket="default"
+    user=""
+    pass=""
+    timeout="0"
+  }]
+}
+
+twitter {
+  host = "api.twitter.com"
+  port = 443
+  oauth2-token-url= "/oauth2/token"
+  user-timeline-url= "/1.1/statuses/user_timeline.json"
+  consumer-key = ""
+  consumer-secret = ""
+  access-token = ""
+  access-token-secret = ""
+  user-name = ""
+}
+
+instagram {
+  host = "api.instagram.com"
+  port = 443
+  callback-url = "http://<IP_ADDRESS>:9000/auth/instagram/callback"
+  recent-media-url = "/v1/tags/nofilter/media/recent?client_id="
+  subscriptions-url = "/v1/subscriptions/"
+  client-id = ""
+  client-secret = ""
+}
+
+soundcloud {
+  host = "api.soundcloud.com"
+  port = 443
+  search-url = "/tracks"
+  client-id = ""
+  client-secret = ""
+}
+
+uber {
+  host = "api.uber.com"
+  port = 443
+  products-url = "/v1/products"
+  server-token = ""
+  client-id = ""
+  client-secret = ""
+}
