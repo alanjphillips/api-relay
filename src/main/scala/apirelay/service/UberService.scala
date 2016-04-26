@@ -36,7 +36,7 @@ trait UberService extends ApiUtils {
     Source.single(request).via(connection).runWith(Sink.head).flatMap { response =>
       response.status match {
         case OK => Unmarshal(response.entity).to[String].flatMap { entity =>
-          println("Uber Responded:\n " + entity)
+          println("Uber Response:\n " + entity)
           Future.successful(entity)
         }
         case _ => Unmarshal(response.entity).to[String].flatMap { entity =>
